@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI恋愛相談室</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="padding: 10px;">
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>AI恋愛相談室</h2>
+      <button onclick="window.location.href='result.html'" class="back-btn">結果に戻る</button>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+      </div>
+    
+    <div class="chat-input-area">
+      <input type="text" id="userInput" placeholder="メッセージを入力..." onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()" id="sendBtn">送信</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL1GwkLhEiZT6PKv9DjyLuxrag6PYJTnA",
+      authDomain: "loveanalyze.firebaseapp.com",
+      projectId: "loveanalyze",
+      storageBucket: "loveanalyze.firebasestorage.app",
+      messagingSenderId: "461927088832",
+      appId: "1:461927088832:web:231958a746b4c99b6ee325",
+      measurementId: "G-6YT0VRQP6Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const GEMINI_API_KEY = 'AIzaSyBJMVdkcCkhiiBX7foXCmXJ_yE5AhgAD5g';
+    let chatHistory = [];
+    let systemInstruction = "";
+    let currentUser = null;
+    let isInitialized = false;
+
+    window.onload = function() {
+      const savedData = sessionStorage.getItem("aiDiagnosticResult");
+      if (!savedData) {
+        alert("診断データが見つかりません。入力画面に戻ります。");
+        window.location.href = "index.html";
+        return;
+      }
+      systemInstruction = `あなたは親しみやすく、優しい口調の恋愛カウンセラーです。ユーザーの友達のように、丁寧でありながらもフランクに相談に乗ってください。
+以下の診断結果データを踏まえて会話をしてください。不足している情報や気になる点があれば、あなたから積極的に質問してください。
+【診断結果データ】\n${savedData}`;
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      
+      if (isInitialized) return; 
+      isInitialized = true;
+
+      const messagesDiv = document.getElementById("chatMessages");
+      messagesDiv.innerHTML = "";
+      chatHistory = [];
+
+      if (user) {
+        await loadChatHistory(user.uid);
+      } else {
+        appendMessage("ai", "診断お疲れ様でした！結果を見て、もっと詳しく知りたいことや、不安に思ったことはありますか？何でも気軽に相談してくださいね。<br>（現在はログインしていないため、チャット履歴は保存されません）");
+      }
+    });
+
+    async function loadChatHistory(uid) {
+      try {
+        const q = query(collection(db, "users", uid, "chats"), orderBy("timestamp", "asc"));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          appendMessage("ai", "診断お疲れ様でした！結果を見て、もっと詳しく知りたいことや、不安に思ったことはありますか？何でも気軽に相談してくださいね。");
+        } else {
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            appendMessage(data.sender, data.text);
+            chatHistory.push({ role: data.sender === "user" ? "user" : "model", parts: [{ text: data.text }] });
+          });
+        }
+      } catch (error) {
+        console.error("履歴の読み込みに失敗しました:", error);
+        appendMessage("ai", "【お知らせ】<br>過去の会話履歴を読み込めませんでした。Firebase側の「Firestore Database」が作成されていないか、セキュリティルールの設定が必要です。<br><br>診断お疲れ様でした！結果について相談したいことはありますか？");
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const messagesDiv = document.getElementById("chatMessages");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "message " + sender;
+      
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "message-content";
+      contentDiv.innerHTML = text.replace(/\n/g, '<br>');
+      
+      msgDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    async function saveMessageToFirestore(uid, sender, text) {
+      if (!uid) return;
+      try {
+        await addDoc(collection(db, "users", uid, "chats"), {
+          sender: sender,
+          text: text,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("履歴保存エラー:", e);
+      }
+    }
+
+    window.sendMessage = async function() {
+      const inputEl = document.getElementById("userInput");
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      appendMessage("user", text);
+      inputEl.value = "";
+      document.getElementById("sendBtn").disabled = true;
+
+      chatHistory.push({ role: "user", parts: [{ text: text }] });
+      
+      if (currentUser) {
+        // 修正点：awaitを外してデータベース保存とAI通信を並行させる
+        saveMessageToFirestore(currentUser.uid, "user", text);
+      }
+
+      const loadingId = "loading-" + Date.now();
+      appendMessage("ai", "<span id='" + loadingId + "'>入力中...</span>");
+
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + GEMINI_API_KEY;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents: chatHistory
+          })
+        });
+
+        if (!response.ok) throw new Error("HTTPエラー " + response.status);
+
+        const data = await response.json();
+        const aiResponseText = data.candidates[0].content.parts[0].text;
+
+        chatHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
+        
+        if (currentUser) {
+          saveMessageToFirestore(currentUser.uid, "ai", aiResponseText);
+        }
+
+        document.getElementById(loadingId).parentNode.innerHTML = aiResponseText.replace(/\n/g, '<br>');
+        const messagesDiv = document.getElementById("chatMessages");
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+      } catch (error) {
+        console.error("エラー詳細:", error);
+        document.getElementById(loadingId).parentNode.innerText = "通信エラーが発生しました。もう一度送信してください。";
+        chatHistory.pop();
+      } finally {
+        document.getElementById("sendBtn").disabled = false;
+        inputEl.focus();
+      }
+    };
+
+    window.handleKeyPress = function(event) {
+      if (event.key === "Enter") {
+        window.sendMessage();
+      }
+    };
+  </script>
+</body>
+</html>

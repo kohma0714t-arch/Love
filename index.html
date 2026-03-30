@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI恋愛相性診断 - 入力</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-logo">AI恋愛相性診断</div>
+    <div class="header-nav">
+      <button onclick="window.scrollTo(0,0)" class="nav-btn">トップへ</button>
+      <button id="headerLoginBtn" class="nav-btn">読み込み中...</button>
+    </div>
+  </header>
+
+  <h1>AI恋愛相性診断</h1>
+  
+  <div class="section">
+    <h3>分析に使用する項目</h3>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="useMBTI" checked onchange="toggleField('MBTI')"> MBTI</label>
+      <label><input type="checkbox" id="useRomanceMBTI" checked onchange="toggleField('RomanceMBTI')"> 恋愛MBTI</label>
+      <label><input type="checkbox" id="useBloodType" checked onchange="toggleField('BloodType')"> 血液型</label>
+      <label><input type="checkbox" id="useDob" checked onchange="toggleField('Dob')"> 生年月日</label>
+    </div>
+  </div>
+
+  <div class="flex-row">
+    <div class="section">
+      <h3>あなたの情報</h3>
+      <div class="form-group">
+        <label>あなたのお名前（ニックネーム）</label>
+        <input type="text" id="myName" placeholder="例: たろう">
+      </div>
+      <div class="form-group">
+        <label>あなたの性別</label>
+        <select id="myGender">
+          <option value="">選択してください</option>
+          <option value="男性">男性</option>
+          <option value="女性">女性</option>
+          <option value="その他">その他</option>
+          <option value="回答しない">回答しない</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-my-MBTI">
+        <label>MBTI</label>
+        <select id="myMBTI">
+          <option value="">選択してください</option>
+          <option value="INTJ">INTJ</option>
+          <option value="INTP">INTP</option>
+          <option value="ENTJ">ENTJ</option>
+          <option value="ENTP">ENTP</option>
+          <option value="INFJ">INFJ</option>
+          <option value="INFP">INFP</option>
+          <option value="ENFJ">ENFJ</option>
+          <option value="ENFP">ENFP</option>
+          <option value="ISTJ">ISTJ</option>
+          <option value="ISFJ">ISFJ</option>
+          <option value="ESTJ">ESTJ</option>
+          <option value="ESFJ">ESFJ</option>
+          <option value="ISTP">ISTP</option>
+          <option value="ISFP">ISFP</option>
+          <option value="ESTP">ESTP</option>
+          <option value="ESFP">ESFP</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-my-RomanceMBTI">
+        <label>恋愛MBTI</label>
+        <select id="myRomanceMBTI">
+          <option value="">選択してください</option>
+          <option value="LCRO(ボス猫)">LCRO(ボス猫)</option>
+          <option value="LCRE(隠れベイビー)">LCRE(隠れベイビー)</option>
+          <option value="LCPO(主役体質)">LCPO(主役体質)</option>
+          <option value="LCPE(ツンデレヤンキー)">LCPE(ツンデレヤンキー)</option>
+          <option value="LARO(憧れの先輩)">LARO(憧れの先輩)</option>
+          <option value="LARE(カリスマバランサー)">LARE(カリスマバランサー)</option>
+          <option value="LAPO(パーフェクトカメレオン)">LAPO(パーフェクトカメレオン)</option>
+          <option value="LAPE(キャプテンライオン)">LAPE(キャプテンライオン)</option>
+          <option value="FCRO(ロマンスマジシャン)">FCRO(ロマンスマジシャン)</option>
+          <option value="FCRE(ちゃっかりうさぎ)">FCRE(ちゃっかりうさぎ)</option>
+          <option value="FCPO(恋愛モンスター)">FCPO(恋愛モンスター)</option>
+          <option value="FCPE(忠犬ハチ公)">FCPE(忠犬ハチ公)</option>
+          <option value="FARO(不思議生命体)">FARO(不思議生命体)</option>
+          <option value="FARE(敏腕マネージャー)">FARE(敏腕マネージャー)</option>
+          <option value="FAPO(デビル天使)">FAPO(デビル天使)</option>
+          <option value="FAPE(最後の恋人)">FAPE(最後の恋人)</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-my-BloodType">
+        <label>血液型</label>
+        <select id="myBlood">
+          <option value="">選択してください</option>
+          <option value="A型">A型</option>
+          <option value="B型">B型</option>
+          <option value="O型">O型</option>
+          <option value="AB型">AB型</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-my-Dob">
+        <label>生年月日</label>
+        <input type="date" id="myDob">
+      </div>
+      <div class="form-group">
+        <label>エピソード・関係性 (任意)</label>
+        <textarea id="myEpisode" rows="3" placeholder="例: 片思い中。最近よく目が合う気がする。"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>お相手の情報</h3>
+      <div class="form-group">
+        <label>お相手のお名前（ニックネーム）</label>
+        <input type="text" id="partnerName" placeholder="例: はなこ">
+      </div>
+      <div class="form-group">
+        <label>お相手の性別</label>
+        <select id="partnerGender">
+          <option value="">選択してください</option>
+          <option value="男性">男性</option>
+          <option value="女性">女性</option>
+          <option value="その他">その他</option>
+          <option value="わからない・回答しない">わからない・回答しない</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-partner-MBTI">
+        <label>MBTI</label>
+        <select id="partnerMBTI">
+          <option value="">選択してください</option>
+          <option value="INTJ">INTJ</option>
+          <option value="INTP">INTP</option>
+          <option value="ENTJ">ENTJ</option>
+          <option value="ENTP">ENTP</option>
+          <option value="INFJ">INFJ</option>
+          <option value="INFP">INFP</option>
+          <option value="ENFJ">ENFJ</option>
+          <option value="ENFP">ENFP</option>
+          <option value="ISTJ">ISTJ</option>
+          <option value="ISFJ">ISFJ</option>
+          <option value="ESTJ">ESTJ</option>
+          <option value="ESFJ">ESFJ</option>
+          <option value="ISTP">ISTP</option>
+          <option value="ISFP">ISFP</option>
+          <option value="ESTP">ESTP</option>
+          <option value="ESFP">ESFP</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-partner-RomanceMBTI">
+        <label>恋愛MBTI</label>
+        <select id="partnerRomanceMBTI">
+          <option value="">選択してください</option>
+          <option value="LCRO(ボス猫)">LCRO(ボス猫)</option>
+          <option value="LCRE(隠れベイビー)">LCRE(隠れベイビー)</option>
+          <option value="LCPO(主役体質)">LCPO(主役体質)</option>
+          <option value="LCPE(ツンデレヤンキー)">LCPE(ツンデレヤンキー)</option>
+          <option value="LARO(憧れの先輩)">LARO(憧れの先輩)</option>
+          <option value="LARE(カリスマバランサー)">LARE(カリスマバランサー)</option>
+          <option value="LAPO(パーフェクトカメレオン)">LAPO(パーフェクトカメレオン)</option>
+          <option value="LAPE(キャプテンライオン)">LAPE(キャプテンライオン)</option>
+          <option value="FCRO(ロマンスマジシャン)">FCRO(ロマンスマジシャン)</option>
+          <option value="FCRE(ちゃっかりうさぎ)">FCRE(ちゃっかりうさぎ)</option>
+          <option value="FCPO(恋愛モンスター)">FCPO(恋愛モンスター)</option>
+          <option value="FCPE(忠犬ハチ公)">FCPE(忠犬ハチ公)</option>
+          <option value="FARO(不思議生命体)">FARO(不思議生命体)</option>
+          <option value="FARE(敏腕マネージャー)">FARE(敏腕マネージャー)</option>
+          <option value="FAPO(デビル天使)">FAPO(デビル天使)</option>
+          <option value="FAPE(最後の恋人)">FAPE(最後の恋人)</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-partner-BloodType">
+        <label>血液型</label>
+        <select id="partnerBlood">
+          <option value="">選択してください</option>
+          <option value="A型">A型</option>
+          <option value="B型">B型</option>
+          <option value="O型">O型</option>
+          <option value="AB型">AB型</option>
+        </select>
+      </div>
+      <div class="form-group" id="group-partner-Dob">
+        <label>生年月日</label>
+        <input type="date" id="partnerDob">
+      </div>
+    </div>
+  </div>
+
+  <button onclick="diagnose()">相性を診断する</button>
+
+  <div id="loadingArea">
+    <div class="heart-loader"></div>
+    <div id="statusText">AIがふたりの未来をシミュレーションしています...</div>
+  </div>
+
+  <script>
+    function toggleField(fieldId) {
+      const isChecked = document.getElementById("use" + fieldId).checked;
+      const displayState = isChecked ? "block" : "none";
+      document.getElementById("group-my-" + fieldId).style.display = displayState;
+      document.getElementById("group-partner-" + fieldId).style.display = displayState;
+    }
+
+    async function diagnose() {
+      let checkedCount = 0;
+      if (document.getElementById("useMBTI").checked) checkedCount++;
+      if (document.getElementById("useRomanceMBTI").checked) checkedCount++;
+      if (document.getElementById("useBloodType").checked) checkedCount++;
+      if (document.getElementById("useDob").checked) checkedCount++;
+
+      if (checkedCount < 2) {
+        alert("精度の高いAI診断を行うため、分析に使用する項目は必ず「2つ以上」選択してください。");
+        return;
+      }
+
+      let errorMessage = "";
+
+      if (!document.getElementById("myName").value) errorMessage += "・あなたのお名前（ニックネーム）\n";
+      if (!document.getElementById("myGender").value) errorMessage += "・あなたの性別\n";
+      if (!document.getElementById("partnerName").value) errorMessage += "・お相手のお名前（ニックネーム）\n";
+      if (!document.getElementById("partnerGender").value) errorMessage += "・お相手の性別\n";
+
+      if (document.getElementById("useMBTI").checked) {
+        if (!document.getElementById("myMBTI").value || !document.getElementById("partnerMBTI").value) {
+          errorMessage += "・MBTI\n";
+        }
+      }
+      if (document.getElementById("useRomanceMBTI").checked) {
+        if (!document.getElementById("myRomanceMBTI").value || !document.getElementById("partnerRomanceMBTI").value) {
+          errorMessage += "・恋愛MBTI\n";
+        }
+      }
+      if (document.getElementById("useBloodType").checked) {
+        if (!document.getElementById("myBlood").value || !document.getElementById("partnerBlood").value) {
+          errorMessage += "・血液型\n";
+        }
+      }
+      if (document.getElementById("useDob").checked) {
+        if (!document.getElementById("myDob").value || !document.getElementById("partnerDob").value) {
+          errorMessage += "・生年月日\n";
+        }
+      }
+
+      if (errorMessage !== "") {
+        alert("以下の項目が入力・選択されていません。確認をお願いします。\n\n" + errorMessage);
+        return;
+      }
+
+      document.getElementById("loadingArea").style.display = "flex";
+
+      const myName = document.getElementById("myName").value;
+      const myGender = document.getElementById("myGender").value;
+      const partnerName = document.getElementById("partnerName").value;
+      const partnerGender = document.getElementById("partnerGender").value;
+
+      let myInfo = "";
+      let partnerInfo = "";
+      
+      if (document.getElementById("useMBTI").checked) {
+        myInfo += "MBTI: " + document.getElementById("myMBTI").value + "\n";
+        partnerInfo += "MBTI: " + document.getElementById("partnerMBTI").value + "\n";
+      }
+      if (document.getElementById("useRomanceMBTI").checked) {
+        myInfo += "恋愛MBTI: " + document.getElementById("myRomanceMBTI").value + "\n";
+        partnerInfo += "恋愛MBTI: " + document.getElementById("partnerRomanceMBTI").value + "\n";
+      }
+      if (document.getElementById("useBloodType").checked) {
+        myInfo += "血液型: " + document.getElementById("myBlood").value + "\n";
+        partnerInfo += "血液型: " + document.getElementById("partnerBlood").value + "\n";
+      }
+      if (document.getElementById("useDob").checked) {
+        myInfo += "生年月日: " + document.getElementById("myDob").value + "\n";
+        partnerInfo += "生年月日: " + document.getElementById("partnerDob").value + "\n";
+      }
+      
+      const episode = document.getElementById("myEpisode").value;
+      const context = episode ? "【関係性・エピソード】\n" + episode + "\n" : "";
+
+      const prompt = `あなたはプロの恋愛カウンセラーです。以下の情報を基に相性診断を行ってください。
+
+【${myName}さん（相談者）の情報】
+性別: ${myGender}
+${myInfo}
+
+【${partnerName}さん（お相手）の情報】
+性別: ${partnerGender}
+${partnerInfo}
+${context}
+
+【分析・出力要件】
+1. 「価値観」「性格」「相性」を総合評価し、100点満点の「総合スコア」を算出。
+2. ラブスタイル類型論（エロス、ルダス、ストルゲ、プラグマ、マニア、アガペー）に基づき、二人の関係性の傾向を各10点満点で数値化。必ず6つの数字のみの配列にすること。
+3. 分析レポートは「価値観の相性」「性格のバランス」など、2〜3つの項目に分けて、それぞれの見出しと解説文を作成すること。
+4. 二人の分析結果を踏まえ、「おすすめのデート場所（具体的な理由付き）」「おすすめの話題」「付き合ったらどうなるかの未来シミュレーション」の3点を具体的に提案すること。
+5. 今後のアドバイスは、必ず「${myName}さん」個人が次にどう行動すべきかという視点のみで記述してください。「${partnerName}さん」に対するアドバイスや、二人で協力するような提案は一切含めないでください。主語は必ず「${myName}さん」にしてください。
+
+必ず以下のJSON形式のみを出力してください。
+{
+  "overall_score": 85,
+  "love_styles": [8, 5, 7, 9, 4, 6],
+  "analysis_reports": [
+    {"title": "価値観の相性", "text": "解説文..."},
+    {"title": "性格のバランス", "text": "解説文..."}
+  ],
+  "future_steps": {
+    "date_spot": "おすすめのデート場所とその理由...",
+    "conversation_topic": "おすすめの話題...",
+    "future_simulation": "付き合ったらどうなるかのシミュレーション..."
+  },
+  "advice_text": "${myName}さんに向けた個別アドバイス..."
+}`;
+
+      const API_KEY = 'AIzaSyBJMVdkcCkhiiBX7foXCmXJ_yE5AhgAD5g'; 
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
+      
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json" }
+          })
+        });
+
+        if (!response.ok) throw new Error("HTTPエラー " + response.status);
+        
+        const data = await response.json();
+        const resultJson = JSON.parse(data.candidates[0].content.parts[0].text);
+        
+        sessionStorage.setItem("aiDiagnosticResult", JSON.stringify(resultJson));
+        window.location.href = "result.html";
+        
+      } catch (error) {
+        console.error("エラー詳細:", error);
+        document.getElementById("statusText").innerText = "エラーが発生しました。入力内容やインターネット接続を確認してください。";
+        document.querySelector('.heart-loader').style.display = 'none';
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL1GwkLhEiZT6PKv9DjyLuxrag6PYJTnA",
+      authDomain: "loveanalyze.firebaseapp.com",
+      projectId: "loveanalyze",
+      storageBucket: "loveanalyze.firebasestorage.app",
+      messagingSenderId: "461927088832",
+      appId: "1:461927088832:web:231958a746b4c99b6ee325",
+      measurementId: "G-6YT0VRQP6Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    const loginBtn = document.getElementById("headerLoginBtn");
+
+    window.loginWithGoogle = () => {
+      signInWithPopup(auth, provider).catch(err => {
+        console.error("ログインエラー:", err);
+        alert("ログイン処理がキャンセルされたか、エラーが発生しました。");
+      });
+    };
+
+    window.logout = () => {
+      signOut(auth).then(() => {
+        alert("ログアウトしました。");
+      });
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginBtn.innerText = "ログアウト";
+        loginBtn.onclick = window.logout;
+      } else {
+        loginBtn.innerText = "ログイン";
+        loginBtn.onclick = window.loginWithGoogle;
+      }
+    });
+  </script>
+</body>
+</html>

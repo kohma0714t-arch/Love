@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>診断結果 - AI恋愛相性診断</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-logo">AI恋愛相性診断</div>
+    <div class="header-nav">
+      <button onclick="window.scrollTo(0,0)" class="nav-btn">トップへ</button>
+      <button id="headerLoginBtn" class="nav-btn">読み込み中...</button>
+    </div>
+  </header>
+
+  <h1>診断結果</h1>
+
+  <div id="resultArea" class="section" style="display: block;">
+    <div class="score-container">
+      <div class="score-label">総合相性スコア</div>
+      <div class="score-value" id="totalScore">--点</div>
+    </div>
+    
+    <canvas id="radarChart"></canvas>
+    
+    <h3>AI分析レポート</h3>
+    <div id="analysisContainer"></div>
+    
+    <h3>未来への革新ステップ</h3>
+    <div id="futureStepsContainer" class="locked-container">
+      <div id="futureStepsContent" class="blurred-content">
+        <div class="report-card" style="border-left-color: #ff9a9e;">
+          <h4>おすすめのデート場所</h4>
+          <p id="dateSpot">ダミーテキスト。広告視聴後に結果が表示されます。</p>
+        </div>
+        <div class="report-card" style="border-left-color: #ff9a9e;">
+          <h4>おすすめの話題</h4>
+          <p id="convTopic">ダミーテキスト。広告視聴後に結果が表示されます。</p>
+        </div>
+        <div class="report-card" style="border-left-color: #ff9a9e;">
+          <h4>付き合ったらどうなるか</h4>
+          <p id="futureSim">ダミーテキスト。広告視聴後に結果が表示されます。</p>
+        </div>
+      </div>
+      <div id="unlockOverlay" class="unlock-overlay">
+        <div class="teaser-box">
+          <p class="teaser-title">動画を見て特別分析をアンロック</p>
+          <ul class="teaser-list">
+            <li><span class="teaser-icon">📍</span>具体的なおすすめデート場所</li>
+            <li><span class="teaser-icon">💬</span>絶対盛り上がる！おすすめの話題</li>
+            <li><span class="teaser-icon">🔮</span>付き合ったらどうなる？未来予想図</li>
+          </ul>
+        </div>
+        <button class="ad-button" onclick="playMockAd()">短い動画を見て結果を見る</button>
+      </div>
+    </div>
+
+    <h3>今後のアドバイス</h3>
+    <div class="result-text" id="adviceText"></div>
+
+    <button onclick="window.location.href='chat.html'" style="background-color: #ff69b4; margin-top: 20px;">AIと直接相談する</button>
+    <button onclick="window.location.href='index.html'" style="background-color: #999; margin-top: 15px;">もう一度診断する</button>
+  </div>
+
+  <footer class="main-footer">
+    <p class="footer-copy">&copy; 2026 AI恋愛相性診断</p>
+  </footer>
+
+  <div id="mockAdScreen">
+    <div style="font-size: 20px;">動画広告を再生しています...</div>
+    <div class="ad-timer">残り <span id="adTimerText">3</span> 秒</div>
+  </div>
+
+  <script>
+    let radarChartInstance = null;
+
+    window.onload = function() {
+      const savedData = sessionStorage.getItem("aiDiagnosticResult");
+      
+      if (!savedData) {
+        alert("診断データが見つかりません。もう一度入力してください。");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const resultJson = JSON.parse(savedData);
+
+      document.getElementById("totalScore").innerText = resultJson.overall_score + "点";
+      
+      const analysisContainer = document.getElementById("analysisContainer");
+      resultJson.analysis_reports.forEach(function(report) {
+        const reportDiv = document.createElement("div");
+        reportDiv.className = "report-card";
+        reportDiv.innerHTML = "<h4>" + report.title + "</h4><p>" + report.text + "</p>";
+        analysisContainer.appendChild(reportDiv);
+      });
+
+      if (resultJson.future_steps) {
+        document.getElementById("dateSpot").innerText = resultJson.future_steps.date_spot;
+        document.getElementById("convTopic").innerText = resultJson.future_steps.conversation_topic;
+        document.getElementById("futureSim").innerText = resultJson.future_steps.future_simulation;
+      }
+
+      document.getElementById("adviceText").innerHTML = resultJson.advice_text.replace(/\n/g, '<br>');
+      
+      drawChart(resultJson.love_styles);
+    };
+
+    function playMockAd() {
+      const adScreen = document.getElementById('mockAdScreen');
+      const adTimerText = document.getElementById('adTimerText');
+      adScreen.style.display = 'flex';
+      
+      let timeLeft = 3;
+      adTimerText.innerText = timeLeft;
+      
+      const timerInterval = setInterval(() => {
+        timeLeft--;
+        adTimerText.innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          adScreen.style.display = 'none';
+          unlockContent();
+        }
+      }, 1000);
+    }
+
+    function unlockContent() {
+      document.getElementById('futureStepsContent').classList.remove('blurred-content');
+      document.getElementById('unlockOverlay').style.display = 'none';
+    }
+
+    function drawChart(dataArray) {
+      if (typeof Chart === 'undefined') return;
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if (radarChartInstance) radarChartInstance.destroy();
+      if (!Array.isArray(dataArray) || dataArray.length !== 6) dataArray = [5, 5, 5, 5, 5, 5];
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['エロス(情熱)', 'ルダス(遊戯)', 'ストルゲ(友愛)', 'プラグマ(実利)', 'マニア(狂気)', 'アガペー(献身)'],
+          datasets: [{
+            label: 'ラブスタイル傾向',
+            data: dataArray,
+            backgroundColor: 'rgba(255, 105, 180, 0.2)',
+            borderColor: 'rgba(255, 105, 180, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(255, 105, 180, 1)'
+          }]
+        },
+        options: { scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } } }
+      });
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCL1GwkLhEiZT6PKv9DjyLuxrag6PYJTnA",
+      authDomain: "loveanalyze.firebaseapp.com",
+      projectId: "loveanalyze",
+      storageBucket: "loveanalyze.firebasestorage.app",
+      messagingSenderId: "461927088832",
+      appId: "1:461927088832:web:231958a746b4c99b6ee325",
+      measurementId: "G-6YT0VRQP6Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    const loginBtn = document.getElementById("headerLoginBtn");
+
+    window.loginWithGoogle = () => {
+      signInWithPopup(auth, provider).catch(err => {
+        console.error("ログインエラー:", err);
+        alert("ログイン処理がキャンセルされたか、エラーが発生しました。");
+      });
+    };
+
+    window.logout = () => {
+      signOut(auth).then(() => {
+        alert("ログアウトしました。");
+      });
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginBtn.innerText = "ログアウト";
+        loginBtn.onclick = window.logout;
+      } else {
+        loginBtn.innerText = "ログイン";
+        loginBtn.onclick = window.loginWithGoogle;
+      }
+    });
+  </script>
+</body>
+</html>
